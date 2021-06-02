@@ -1,2 +1,9 @@
-# COBOL
-Chemistry Oriented Bayesian Optimization Library
+![alt text](https://github.com/hieuadoan/COMBO/blob/main/COBOL-logo.png?raw=true)
+# Description
+COBOL is a collection of chemistry oriented AI that combines cheminformatics with active learning via Bayesian optimization to accelerate materials discovery in large search space. 
+# Dependencies
+- Numpy 
+- Scipy
+- Pandas
+- Scikit-learn
+- RDKit
