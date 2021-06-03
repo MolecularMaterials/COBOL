@@ -1,6 +1,6 @@
 # Description
 Python codes used in:\
-"Quantum Chemistry-Informed Active Learning to Accelerate the Design and Discovery of Sustainable Energy Storage Materials"\
+**"Quantum Chemistry-Informed Active Learning to Accelerate the Design and Discovery of Sustainable Energy Storage Materials"**\
 Hieu A. Doan, Garvit Agarwal, Hai Qian, Michael J. Counihan, Joaquín Rodríguez-López, Jeffrey S. Moore, and Rajeev S. Assary.\
 Chemistry of Materials 2020 32 (15), 6338-6346\
 DOI: 10.1021/acs.chemmater.0c00768
