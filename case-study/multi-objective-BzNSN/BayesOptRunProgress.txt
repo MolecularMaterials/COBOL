@@ -2,3 +2,7 @@ Original Training X and Y :
 (1407, 22)(1407, 3)
 Run #1
 ---------------------------
+Original Training X and Y : 
+(1407, 22)(1407, 3)
+Run #1
+---------------------------
