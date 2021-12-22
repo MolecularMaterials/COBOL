@@ -21,7 +21,7 @@ def upperConfidenceBound(xdata, gpnetwork, epsilon):
         gpnetwork: GPR model
         epsilon: control exploration/exploitation. Higher epsilon means more exploration
     """
-    ye_pred, esigma = gprediction(gpnetwork, xdata)
+    ye_pred, esigma = GPPrediction(gpnetwork, xdata)
     ucb = np.empty(ye_pred.size, dtype=float)
     for ii in range(0,ye_pred.size):
         if esigma[ii] > 0:
@@ -33,7 +33,7 @@ def upperConfidenceBound(xdata, gpnetwork, epsilon):
 def probabilityOfImprovement(xdata, gpnetwork, ybest, epsilon):  
     "ybest: GPR-predicted best output property of the TRAINING set"
 
-    ye_pred, esigma = gprediction(gpnetwork, xdata)
+    ye_pred, esigma = GPPrediction(gpnetwork, xdata)
     poI = np.empty(ye_pred.size, dtype=float)
     for ii in range(0,ye_pred.size):
         if esigma[ii] > 0:
@@ -44,7 +44,7 @@ def probabilityOfImprovement(xdata, gpnetwork, ybest, epsilon):
     return poI
 
 def expectedImprovement(xdata,gpnetwork,ybest,epsilon): 
-    ye_pred, esigma = gprediction(gpnetwork, xdata)
+    ye_pred, esigma = GPPrediction(gpnetwork, xdata)
     expI = np.empty(ye_pred.size, dtype=float)
     for ii in range(0,ye_pred.size):
         if esigma[ii] > 0:
