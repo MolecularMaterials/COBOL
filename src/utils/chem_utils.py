@@ -1,12 +1,74 @@
 import pandas as pd
+import rdkit as rdkit
+from rdkit.Chem.AtomPairs.Sheridan import GetBPFingerprint, GetBTFingerprint
 import rdkit.Chem as Chem
+import rdkit.Chem.AtomPairs.Pairs as Pairs
+import rdkit.Chem.AllChem as AllChem
 import rdkit.Chem.Fragments as Fragments
 import rdkit.Chem.Crippen as Crippen
 import rdkit.Chem.Lipinski as Lipinski
 import rdkit.Chem.rdMolDescriptors as MolDescriptors
 import rdkit.Chem.Descriptors as Descriptors
+from rdkit.Chem.Pharm2D import Generate, Gobbi_Pharm2D
 
-def Smiles2CustomDescriptors(smilesList):
+class FingerprintGenerator:
+    ''' Generate the fingerprint for a molecule, given the fingerprint type
+    Parameters: 
+        mol (rdkit.Chem.rdchem.Mol) : RdKit mol object (None if invalid smile string smi)
+        fp_type (string)            : Fingerprint type  (choices: AtomPair|Pharmacophore|ECFP4|ECFP6|FCFP4|FCFP6)  
+    Returns:
+        Bit vector (of size 2048 by default)
+    '''
+
+    def get_fingerprint(self, mol: rdkit.Chem.rdchem.Mol, fp_type: str):
+        method_name = 'get_' + fp_type
+        method = getattr(self, method_name)
+        if method is None:
+            raise Exception(f'{fp_type} is not a supported fingerprint type.')
+        return method(mol)
+
+    def get_AtomPair(self, mol: rdkit.Chem.rdchem.Mol):
+        return list(Pairs.GetAtomPairFingerprintAsBitVect(mol))
+
+    def get_Pharmacophore(self, mol: rdkit.Chem.rdchem.Mol):
+        return list(Generate.Gen2DFingerprint(mol, Gobbi_Pharm2D.factory))
+
+    def get_BPF(self, mol: rdkit.Chem.rdchem.Mol):
+        return list(GetBPFingerprint(mol))
+
+    def get_BTF(self, mol: rdkit.Chem.rdchem.Mol):
+        return list(GetBTFingerprint(mol))
+
+    def get_RDK(self, mol: rdkit.Chem.rdchem.Mol):
+        return list(AllChem.RDKFingerprint(mol))
+
+    def get_ECFP4(self, mol: rdkit.Chem.rdchem.Mol):
+        return list(AllChem.GetMorganFingerprintAsBitVect(mol, 2))
+
+    def get_ECFP6(self, mol: rdkit.Chem.rdchem.Mol):
+        return list(AllChem.GetMorganFingerprintAsBitVect(mol, 3))
+
+    def get_FCFP4(self, mol: rdkit.Chem.rdchem.Mol):
+        return list(AllChem.GetMorganFingerprintAsBitVect(mol, 2, useFeatures=True))
+
+    def get_FCFP6(self, mol: rdkit.Chem.rdchem.Mol):
+        return list(AllChem.GetMorganFingerprintAsBitVect(mol, 3, useFeatures=True))
+
+def get_fingerprint(mol: rdkit.Chem.rdchem.Mol, fp_type: str):
+    ''' Fingerprint getter method. Fingerprint is returned after using object of 
+        class 'FingerprintGenerator'
+        
+    Parameters: 
+        mol (rdkit.Chem.rdchem.Mol) : RdKit mol object (None if invalid smile string smi)
+        fp_type (string)            : Fingerprint type  (choices: AP/PHCO/BPF,BTF,PAT,ECFP4,ECFP6,FCFP4,FCFP6)  
+    Returns:
+        RDKit fingerprint object
+        
+    '''
+    return FingerprintGenerator().get_fingerprint(mol=mol, fp_type=fp_type)
+
+
+def Smiles2Fingerprint(smilesList):
     """
     Input: A Pandas series (or a list) of SMILES
 
@@ -460,3 +522,10 @@ def Smiles2CustomDescriptors(smilesList):
     df_Solvent_Features_All = pd.concat([df_Solvent_Features,df_Solvent_Features_Frags], axis=1)
     X = df_Solvent_Features_All
     return X
+
+if __name__ == '__main__':
+    sml = 'CCOCCO'
+    fp = get_fingerprint(Chem.MolFromSmiles(sml),'AtomPair')
+    print(fp)
+    print(len(fp))
+    print([i for i,e in enumerate(fp) if e!=0])
