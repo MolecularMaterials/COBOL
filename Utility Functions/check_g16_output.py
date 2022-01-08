@@ -11,7 +11,9 @@ from ase.data import chemical_symbols
 from ase.build import molecule
 import matplotlib.pyplot as plt
 
-
+"""
+Usage: python check_g16_output.py <filename.out or filename.log>
+"""
 class GaussianOut: # Modified Garvit's script
 
     def __init__(self,outfile):
