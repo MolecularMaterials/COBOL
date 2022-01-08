@@ -141,7 +141,7 @@ if ext=='out' or ext=='log':
     
     rmsds=file1.get_rmsd()
     
-    plt.figure()
+    plt.figure(1)
     plt.gcf().set_size_inches((16, 16))
     plt.subplot(2,2,1)
     plt.plot(np.arange(nsteps),scf_energy,label="SCF Energy",linewidth=2.5,color="orange")
@@ -172,11 +172,11 @@ if ext=='out' or ext=='log':
     plt.xlabel("Steps")
     plt.ylabel("RMSD")
     plt.legend()
-
-    plt.show()
-
     write("%s-movie.xyz" % name, complex_atoms)
     os.system('ase gui '+name+'-movie.xyz &')
+    plt.show()
+
+
 
 else:
     print("Pick a .out or .log file to analyze") 
