@@ -10,9 +10,12 @@ from ase import Atom, Atoms
 from ase.data import chemical_symbols
 from ase.build import molecule
 import matplotlib.pyplot as plt
+from calculate_rmsd_aj import calculate_rmsd
 
 """
 Usage: python check_g16_output.py <filename.out or filename.log>
+To calculate rmsd use calculate_rmsd_aj.py to get calculate_rmsd
+if calculate_rmsd_aj.py is not in the current dir then use: sys.path.append(path_of_the_calculate_rmsd_aj.py)
 """
 class GaussianOut: # Modified Garvit's script
 
@@ -122,10 +125,6 @@ class GaussianOut: # Modified Garvit's script
         return rmsd_wrt_initial_xyz
         
 
-print("To calculate rmsd use calculate_rmsd_aj.py to get calculate_rmsd")
-# if calculate_rmsd_aj.py is not in the current dir then use: sys.path.append(path_of_the_calculate_rmsd_aj.py)
-from calculate_rmsd_aj import calculate_rmsd
-
 inpfile=sys.argv[1] # ask for user input
 name, ext =inpfile.split('.')[0], inpfile.split('.')[1]
 
@@ -168,7 +167,7 @@ if ext=='out' or ext=='log':
     plt.legend()
 
     plt.subplot(2,2,4)
-    plt.plot(np.arange(len(rmsds)),rmsds,label="RMSD wrt initial struture",linewidth=2.5,color="magenta")
+    plt.plot(np.arange(len(rmsds)),rmsds,label="RMSD wrt the initial structure",linewidth=2.5,color="magenta")
     plt.xlabel("Steps")
     plt.ylabel("RMSD")
     plt.legend()
