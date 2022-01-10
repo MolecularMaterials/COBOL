@@ -34,6 +34,17 @@ class GaussianOut: # Modified Garvit's script
         for i,row in enumerate(self.lines):
             if "Normal termination" in row:
                 temp=True
+                return temp
+            else:
+                pass
+        return temp
+
+    def is_freq(self):
+        temp=False
+        for i,row in enumerate(self.lines):
+            if "Freq" in row or "freq" in row:
+                temp=True
+                return temp
             else:
                 pass
         return temp
@@ -136,6 +147,7 @@ if ext=='out' or ext=='log':
     thres_max_force,thres_max_rms_force,thres_max_disp,thres_max_rms_disp=file1.get_thresholds()
     
     print("Normal Termination: ",file1.is_clean())
+    print("Freq calculation: ",file1.is_freq())
     print("Writing individual xyz files")
     
     rmsds=file1.get_rmsd()
