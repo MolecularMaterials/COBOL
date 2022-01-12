@@ -1,5 +1,6 @@
 import enum
 import struct
+import shutil
 import numpy as np
 import os, sys
 import glob
@@ -186,6 +187,10 @@ if ext=='out' or ext=='log':
     write("%s-movie.xyz" % name, complex_atoms)
     os.system('ase gui '+name+'-movie.xyz &')
     plt.show()
+    
+    print("Deleting xyz files")
+    path = os.getcwd() +'\\xyz_files_'+name
+    shutil.rmtree(path)
 
 
 
