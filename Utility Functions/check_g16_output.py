@@ -191,8 +191,7 @@ if ext=='out' or ext=='log':
     print("Deleting xyz files")
     path = os.getcwd() +'\\xyz_files_'+name
     shutil.rmtree(path)
-
-
+    os.remove(name+'-movie.xyz')
 
 else:
     print("Pick a .out or .log file to analyze") 
