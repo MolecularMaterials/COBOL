@@ -1,6 +1,6 @@
 import enum
-import struct
 import shutil
+import struct
 import numpy as np
 import os, sys
 import glob
@@ -115,7 +115,7 @@ class GaussianOut: # Modified Garvit's script
     def get_xyz_paths(self): # aj
         structs=self.get_geometry()
         path = os.getcwd()
-        path = path +'\\xyz_files_'+self.name
+        path = path +'_xyz_files_'+self.name
         files_list=[]
         print("xyz files written in ", path)
         if not os.path.exists(path): os.makedirs(path)
@@ -149,6 +149,8 @@ if ext=='out' or ext=='log':
     
     print("Normal Termination: ",file1.is_clean())
     print("Freq calculation: ",file1.is_freq())
+    print("5 large displacements during optimization = ",np.sort(max_disp)[-5:])    
+    print("Maximum Displacement during optimization = ",np.max(max_disp)," at the step number ", np.argmax(max_disp))
     print("Writing individual xyz files")
     
     rmsds=file1.get_rmsd()
@@ -169,7 +171,7 @@ if ext=='out' or ext=='log':
     plt.xlabel("Steps")
     plt.ylabel("Forces (Hartrees/Bohr)")
     plt.legend()
-
+    
     plt.subplot(2,2,3)
     plt.plot(np.arange(len(max_disp)),max_disp,label="Max. Displacement",linewidth=2.5,color="blue")
     plt.plot([0,nsteps],[thres_max_disp,thres_max_disp],"--",label="Threshold",color="blue",linewidth=1.5)
@@ -187,9 +189,8 @@ if ext=='out' or ext=='log':
     write("%s-movie.xyz" % name, complex_atoms)
     os.system('ase gui '+name+'-movie.xyz &')
     plt.show()
-    
-    print("Deleting xyz files")
-    path = os.getcwd() +'\\xyz_files_'+name
+    print("removed xyz files")
+    path = os.getcwd() +'_xyz_files_'+name
     shutil.rmtree(path)
     os.remove(name+'-movie.xyz')
 
