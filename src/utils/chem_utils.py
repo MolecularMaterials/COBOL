@@ -28,6 +28,9 @@ class FingerprintGenerator:
         return method(mol)
 
     def get_AtomPair(self, mol: rdkit.Chem.rdchem.Mol):
+        ecfp6_name = [f'Bit_{i}' for i in range(nBits)]
+        ecfp6_bits = [list(l) for l in ECFP6]
+        dfAll = pd.DataFrame(ecfp6_bits,columns=ecfp6_name)
         return list(Pairs.GetAtomPairFingerprintAsBitVect(mol))
 
     def get_Pharmacophore(self, mol: rdkit.Chem.rdchem.Mol):
