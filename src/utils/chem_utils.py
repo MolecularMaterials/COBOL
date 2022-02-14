@@ -10,6 +10,7 @@ import rdkit.Chem.Lipinski as Lipinski
 import rdkit.Chem.rdMolDescriptors as MolDescriptors
 import rdkit.Chem.Descriptors as Descriptors
 from rdkit.Chem.Pharm2D import Generate, Gobbi_Pharm2D
+import numpy as np
 
 class FingerprintGenerator:
     ''' Generate the fingerprint for a molecule, given the fingerprint type
@@ -20,44 +21,41 @@ class FingerprintGenerator:
         Bit vector (of size 2048 by default)
     '''
 
-    def get_fingerprint(self, mol: rdkit.Chem.rdchem.Mol, fp_type: str):
+    def get_fingerprint(self, mol: Chem.rdchem.Mol, fp_type: str):
         method_name = 'get_' + fp_type
         method = getattr(self, method_name)
         if method is None:
             raise Exception(f'{fp_type} is not a supported fingerprint type.')
         return method(mol)
 
-    def get_AtomPair(self, mol: rdkit.Chem.rdchem.Mol):
-        ecfp6_name = [f'Bit_{i}' for i in range(nBits)]
-        ecfp6_bits = [list(l) for l in ECFP6]
-        dfAll = pd.DataFrame(ecfp6_bits,columns=ecfp6_name)
-        return list(Pairs.GetAtomPairFingerprintAsBitVect(mol))
+    def get_AtomPair(self, mol: Chem.rdchem.Mol):
+        return np.array(Pairs.GetAtomPairFingerprintAsBitVect(mol))
 
-    def get_Pharmacophore(self, mol: rdkit.Chem.rdchem.Mol):
-        return list(Generate.Gen2DFingerprint(mol, Gobbi_Pharm2D.factory))
+    def get_Pharmacophore(self, mol: Chem.rdchem.Mol):
+        return np.array(Generate.Gen2DFingerprint(mol, Gobbi_Pharm2D.factory))
 
-    def get_BPF(self, mol: rdkit.Chem.rdchem.Mol):
-        return list(GetBPFingerprint(mol))
+    def get_BPF(self, mol: Chem.rdchem.Mol):
+        return np.araay(GetBPFingerprint(mol))
 
-    def get_BTF(self, mol: rdkit.Chem.rdchem.Mol):
-        return list(GetBTFingerprint(mol))
+    def get_BTF(self, mol: Chem.rdchem.Mol):
+        return np.array(GetBTFingerprint(mol))
 
-    def get_RDK(self, mol: rdkit.Chem.rdchem.Mol):
-        return list(AllChem.RDKFingerprint(mol))
+    def get_RDK(self, mol: Chem.rdchem.Mol):
+        return np.array(AllChem.RDKFingerprint(mol))
 
-    def get_ECFP4(self, mol: rdkit.Chem.rdchem.Mol):
-        return list(AllChem.GetMorganFingerprintAsBitVect(mol, 2))
+    def get_ECFP4(self, mol: Chem.rdchem.Mol):
+        return np.array(AllChem.GetMorganFingerprintAsBitVect(mol, 2))
 
-    def get_ECFP6(self, mol: rdkit.Chem.rdchem.Mol):
-        return list(AllChem.GetMorganFingerprintAsBitVect(mol, 3))
+    def get_ECFP6(self, mol: Chem.rdchem.Mol):
+        return np.array(AllChem.GetMorganFingerprintAsBitVect(mol, 3))
 
-    def get_FCFP4(self, mol: rdkit.Chem.rdchem.Mol):
-        return list(AllChem.GetMorganFingerprintAsBitVect(mol, 2, useFeatures=True))
+    def get_FCFP4(self, mol: Chem.rdchem.Mol):
+        return np.array(AllChem.GetMorganFingerprintAsBitVect(mol, 2, useFeatures=True))
 
-    def get_FCFP6(self, mol: rdkit.Chem.rdchem.Mol):
-        return list(AllChem.GetMorganFingerprintAsBitVect(mol, 3, useFeatures=True))
+    def get_FCFP6(self, mol: Chem.rdchem.Mol):
+        return np.array(AllChem.GetMorganFingerprintAsBitVect(mol, 3, useFeatures=True))
 
-def get_fingerprint(mol: rdkit.Chem.rdchem.Mol, fp_type: str):
+def get_fingerprint(mol: Chem.rdchem.Mol, fp_type: str):
     ''' Fingerprint getter method. Fingerprint is returned after using object of 
         class 'FingerprintGenerator'
         
@@ -528,7 +526,6 @@ def Smiles2Fingerprint(smilesList):
 
 if __name__ == '__main__':
     sml = 'CCOCCO'
-    fp = get_fingerprint(Chem.MolFromSmiles(sml),'AtomPair')
+    fp = get_fingerprint(Chem.MolFromSmiles(sml),'ECFP4')
     print(fp)
     print(len(fp))
-    print([i for i,e in enumerate(fp) if e!=0])
