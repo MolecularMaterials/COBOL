@@ -1,0 +1,12 @@
+# Ignore all files ending with .log
+*.log
+
+# Ignore the 'temp' directory and its contents
+temp/
+
+# Ignore all files ending with .o or .a in the 'src' directory
+src/*.o
+src/*.a
+
+# Ignore all files with a tilde (~) at the end
+*~
