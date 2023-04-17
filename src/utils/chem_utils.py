@@ -1,6 +1,5 @@
 import pandas as pd
 import rdkit as rdkit
-from rdkit.Chem.AtomPairs.Sheridan import GetBPFingerprint, GetBTFingerprint
 import rdkit.Chem as Chem
 import rdkit.Chem.AtomPairs.Pairs as Pairs
 import rdkit.Chem.AllChem as AllChem
@@ -10,7 +9,6 @@ import rdkit.Chem.Lipinski as Lipinski
 import rdkit.Chem.rdMolDescriptors as MolDescriptors
 import rdkit.Chem.Descriptors as Descriptors
 from rdkit.Chem.Pharm2D import Generate, Gobbi_Pharm2D
-from rdkit.Chem.rdmolops import FastFindRings
 import numpy as np
 
 class FingerprintGenerator:
@@ -58,9 +56,8 @@ class FingerprintGenerator:
 	
     def get_PhysChemFeats(self, mol: Chem.rdchem.Mol):
         """
-        Features used in Doan et al. Chem. Mat. 2020
+        Compute the set of physicochemical features used in Doan et al. Chem. Mat. 2020
         """
-        FastFindRings(mol)
         descNameList = []
         descValList = []
         funcList = [MolDescriptors, Descriptors, Lipinski, Crippen, Fragments]
