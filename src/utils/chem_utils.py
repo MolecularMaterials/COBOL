@@ -82,8 +82,15 @@ class FingerprintGenerator:
                 attrs = [getattr(func, name) for name in dir(func) if (("MolLogP" in name or "MolMR" in name) and "_" not in name)]
                 funcNames = [name for name in dir(func) if (("MolLogP" in name or "MolMR" in name) and "_" not in name)]
             for name, attr in zip(funcNames,attrs):
-                descValList.append(attr(mol))
-                descNameList.append(name)
+                if name not in ['CalcNumAromaticHeterocycles', 'CalcNumSaturatedHeterocycles', 'CalcNumSaturatedRings',
+                                'CalcNumAromaticCarbocycles', 'CalcNumRings', 'CalcNumHeavyAtoms', 'CalcNumRotatableBonds',
+                                'CalcNumAliphaticRings', 'CalcNumHeteroatoms', 'CalcNumAromaticRings', 'CalcNumAliphaticHeterocycles']:
+                    descNameList.append(name)
+                    try:
+                        descValList.append(attr(mol))
+                    except:
+                        descValList.append(0)   # assign 0 for non-SMILES, NaN, or None
+
         return np.array(descNameList), np.array(descValList)
 
 def get_fingerprint(smiles: str, fp_type: str):
