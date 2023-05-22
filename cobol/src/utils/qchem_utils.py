@@ -121,8 +121,9 @@ class GaussianOutputAnalyzer:
         for line in lines:
             if 'Alpha  occ. eigenvalues' in line or 'Beta  occ. eigenvalues' in line:
                 homoOrb_before = True
-            if 'Alpha virt. eigenvalues' in line or 'Beta virt. eigenvalues' in line and homoOrb_before:
+            if ('Alpha virt. eigenvalues' in line or 'Beta virt. eigenvalues' in line) and homoOrb_before:
                 lumo_E = float(line.split()[4])
+                homoOrb_before = False
         return lumo_E
 
     def extract_total_energy(self):
