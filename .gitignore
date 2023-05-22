@@ -5,12 +5,15 @@
 temp/
 
 # Ignore all files ending with .o or .a in the 'src' directory
-src/*.o
-src/*.a
+cobol/src/*.o
+cobol/src/*.a
 
 # Ignore all files with a tilde (~) at the end
 *~
 
 # Ignore all .DS_Store files
 .DS_Store
-src/.DS_Store
+cobol/src/.DS_Store
+
+# Ignore .pyc files
+cobol/src/*.pyc
