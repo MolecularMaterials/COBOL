@@ -108,17 +108,22 @@ class GaussianOutputAnalyzer:
 
     def extract_homo_energy(self):
         lines = self._read_file()
+        homo_E = None
         for line in lines:
             if 'Alpha  occ. eigenvalues' in line or 'Beta  occ. eigenvalues' in line:
-                return float(line.split()[-1])
-        return None
+                homo_E = float(line.split()[-1])
+        return homo_E
 
     def extract_lumo_energy(self):
         lines = self._read_file()
+        lumo_E = None
+        homoOrb_before = False
         for line in lines:
-            if 'Alpha virt. eigenvalues' in line or 'Beta virt. eigenvalues' in line:
-                return float(line.split()[4])
-        return None
+            if 'Alpha  occ. eigenvalues' in line or 'Beta  occ. eigenvalues' in line:
+                homoOrb_before = True
+            if 'Alpha virt. eigenvalues' in line or 'Beta virt. eigenvalues' in line and homoOrb_before:
+                lumo_E = float(line.split()[4])
+        return lumo_E
 
     def extract_total_energy(self):
         lines = self._read_file()
