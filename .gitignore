@@ -15,5 +15,5 @@ cobol/src/*.a
 .DS_Store
 cobol/src/.DS_Store
 
-# Ignore .pyc files
-cobol/src/*.pyc
+# Ignore pycache directory
+cobol/src/utils/__pycache__/
