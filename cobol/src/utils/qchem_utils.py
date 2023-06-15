@@ -3,6 +3,11 @@ import os
 from ase.io import read
 from rdkit import Chem
 from rdkit.Chem import AllChem
+from rdkit.Chem import Draw
+from rdkit.Chem.Draw import rdMolDraw2D
+import matplotlib.pyplot as plt
+from IPython.display import Image
+import numpy as np
 
 class GaussianInputGenerator:
     """
@@ -153,10 +158,10 @@ class GaussianOutputAnalyzer:
 def deprotonateSMILES(smiles):
     """
     Function to generate all possible deprotonated species given a SMILES input
-
     """
-    # Store all unique deprotonated molecules as SMILES strings
-    deprotonated_smiles = set()
+    # Store all unique deprotonated molecules as SMILES strings and atom index
+    deprotonated_species = {}
+
     mol = Chem.MolFromSmiles(smiles)
 
     # Iterate over all atoms in the molecule
@@ -175,11 +180,70 @@ def deprotonateSMILES(smiles):
             smiles = Chem.MolToSmiles(new_mol)
 
             # Check if the SMILES string is valid
-            if Chem.MolFromSmiles(smiles) is not None:
-                # Add the valid SMILES string to the set
-                deprotonated_smiles.add(smiles)
-            else:
-                print(f"Invalid SMILES string generated: {smiles}")
+            if Chem.MolFromSmiles(smiles) is not None and smiles not in deprotonated_species:
+                # Add the valid SMILES string and atom index to the dictionary
+                deprotonated_species[smiles] = atom.GetIdx()
 
     # Generate molecule objects from valid SMILES strings
-    return deprotonated_smiles
+    return deprotonated_species
+
+def drawAndHighlightAtom(mol, atom_index=None):
+    """
+    Given a mol object and an atom index, draw the molecule and highlight that atom
+
+    Return a drawer object that can be saved as an SVG image
+
+    """
+    # Initialize drawer
+    drawer = rdMolDraw2D.MolDraw2DSVG(300,300)
+
+    # Draw the molecule with highlighted atom
+    drawer.drawOptions().addAtomIndices = False  # Optional: Display atom indices
+
+    if atom_index!=None:
+        drawer.DrawMolecule(mol, highlightAtoms=[atom_index])
+    else:
+        drawer.DrawMolecule(mol)
+
+    drawer.FinishDrawing()
+
+    # Save the SVG and display
+    return drawer.GetDrawingText().replace('svg:','')
+
+def calc_pKa(G_HA, G_A, G_proton=-273.1, T=298.15):
+    """
+    Calculate pKa value of acid HA using the direct deprotonation reaction:
+    HA <=> H+ + A-
+    The equation:
+    pKa = [G(proton)+G(A-)-G(HA)]/[RTln(10)]
+    where G are Gibbs free energies computed using DFT at temperature T. G(proton) is typically derived from experimental measurements.
+    Units:
+    G_HA, G_A: Hartree
+    G_proton: kcal/mol
+    """
+    R = 1.987E-3 # kcal/molK
+    hartree2kcalPerMol = 627.5
+    G_proton = G_proton/hartree2kcalPerMol # kcal/mol to hartree
+
+    return (G_A+G_proton-G_HA)*hartree2kcalPerMol/(R*T*np.log(10))
+
+if __name__ == '__main__':
+    smiles = 'FC1=C(F)C=CC=C1'
+    ds = deprotonateSMILES(smiles)
+    # Create a molecule from SMILES string
+    mol = Chem.MolFromSmiles(smiles)
+
+    # Add Hydrogens to the molecule
+    mol = Chem.AddHs(mol)
+    count=0
+    for sml, deprotIdx in ds.items():
+        new_mol = Chem.Mol(mol)
+        new_atom = new_mol.GetAtomWithIdx(deprotIdx)
+        # Get the index of the H atom connected to the atom with the deprotIdx
+        for neighbor in new_atom.GetNeighbors():
+            if neighbor.GetAtomicNum()==1: atom_index=neighbor.GetIdx()
+
+        svg = drawAndHighlightAtom(mol,atom_index)
+        with open('mol'+str(count)+'.svg', 'w') as f:
+            f.write(svg)
+        count+=1

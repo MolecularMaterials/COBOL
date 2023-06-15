@@ -126,7 +126,7 @@ def Smiles2Fingerprint(smilesList, fp_type='PhysChemFeats') -> pd.DataFrame:
 if __name__ == '__main__':
     #sml = 'O'
     smlList = ['O','COC']
-    #_, fp = get_fingerprint(sml, 'AtomPairs')
-    fp = Smiles2Fingerprint(smlList,'ECFP6')
-    print(fp)
+    _, fp = [get_fingerprint(sml, 'PhysChemFeats') for sml in smlList]
+    #fp = Smiles2Fingerprint(smlList,'ECFP6')
+    print(fp[1])
     print(len(fp))
