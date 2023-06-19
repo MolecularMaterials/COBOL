@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, List, Tuple
 
 import pandas as pd
 import rdkit as rdkit
@@ -14,7 +14,7 @@ from rdkit.Chem.Pharm2D import Generate, Gobbi_Pharm2D
 import numpy as np
 
 # List of descriptors, populated once
-_descriptor_list: list[tuple[str, Callable]] = []
+_descriptor_list: List[Tuple[str, Callable]] = []
 
 _descriptor_list.extend((name, getattr(Fragments, name)) for name in dir(Fragments) if "fr" in name)
 _descriptor_list.extend((name, getattr(Lipinski, name)) for name in dir(Lipinski) if ("Count" in name and "Smarts" not in name))
