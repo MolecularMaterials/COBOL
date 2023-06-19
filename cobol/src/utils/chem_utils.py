@@ -1,3 +1,5 @@
+from typing import Callable
+
 import pandas as pd
 import rdkit as rdkit
 import rdkit.Chem as Chem
@@ -10,6 +12,28 @@ import rdkit.Chem.rdMolDescriptors as MolDescriptors
 import rdkit.Chem.Descriptors as Descriptors
 from rdkit.Chem.Pharm2D import Generate, Gobbi_Pharm2D
 import numpy as np
+
+# List of descriptors, populated once
+_descriptor_list: list[tuple[str, Callable]] = []
+
+_descriptor_list.extend((name, getattr(Fragments, name)) for name in dir(Fragments) if "fr" in name)
+_descriptor_list.extend((name, getattr(Lipinski, name)) for name in dir(Lipinski) if ("Count" in name and "Smarts" not in name))
+_descriptor_list.extend((name, getattr(MolDescriptors, name)) for name in dir(MolDescriptors)
+                        if (("CalcNum" in name or "CalcExact" in name or "CalcTPSA" in name or "CalcChi" in name or "Kappa" in name or "Labute" in name)
+                            and "Stereo" not in name and "_" not in name and "ChiN" not in name))
+_descriptor_list.extend((name, getattr(func, name)) for name in dir(Descriptors) 
+			if ("Num" in name or "Min" in name or "Max" in name)]
+_descriptor_list.extend((name, getattr(Crippen, name)) for name in dir(Crippen)
+                        if (("MolLogP" in name or "MolMR" in name) and "_" not in name))
+
+# Remove ring-related descriptors
+_descriptor_list = sorted(
+    (name, func) for name, func in _descriptor_list
+    if name not in ['CalcNumAromaticHeterocycles', 'CalcNumSaturatedHeterocycles', 'CalcNumSaturatedRings',
+                    'CalcNumAromaticCarbocycles', 'CalcNumRings', 'CalcNumHeavyAtoms', 'CalcNumRotatableBonds',
+                    'CalcNumAliphaticRings', 'CalcNumHeteroatoms', 'CalcNumAromaticRings', 'CalcNumAliphaticHeterocycles']
+)
+
 
 class FingerprintGenerator:
     ''' Generate the fingerprint for a molecule, given the fingerprint type
@@ -60,36 +84,12 @@ class FingerprintGenerator:
         """
         descNameList = []
         descValList = []
-        funcList = [MolDescriptors, Descriptors, Lipinski, Crippen, Fragments]
-        for func in funcList:
-            if func == Fragments:
-                attrs = [getattr(func, name) for name in dir(func) if "fr" in name]
-                funcNames = [name for name in dir(func) if "fr" in name]
-            if func == Lipinski:
-                attrs = [getattr(func, name) for name in dir(func) if ("Count" in name and "Smarts" not in name)]
-                funcNames = [name for name in dir(func) if ("Count" in name and "Smarts" not in name)]
-            if func == MolDescriptors:
-                attrs = [getattr(func, name) for name in dir(func)
-                if (("CalcNum" in name or "CalcExact" in name or "CalcTPSA" in name or "CalcChi" in name or "Kappa" in name or "Labute" in name)
-                and "Stereo" not in name and "_" not in name and "ChiN" not in name)]
-                funcNames = [name for name in dir(func)
-                if (("CalcNum" in name or "CalcExact" in name or "CalcTPSA" in name or "CalcChi" in name or "Kappa" in name or "Labute" in name)
-                and "Stereo" not in name and "_" not in name and "ChiN" not in name)]
-            if func == Descriptors:
-                attrs = [getattr(func, name) for name in dir(func) if ("Num" in name or "Min" in name or "Max" in name)]
-                funcNames = [name for name in dir(func) if ("Num" in name or "Min" in name or "Max" in name)]
-            if func == Crippen:
-                attrs = [getattr(func, name) for name in dir(func) if (("MolLogP" in name or "MolMR" in name) and "_" not in name)]
-                funcNames = [name for name in dir(func) if (("MolLogP" in name or "MolMR" in name) and "_" not in name)]
-            for name, attr in zip(funcNames,attrs):
-                if name not in ['CalcNumAromaticHeterocycles', 'CalcNumSaturatedHeterocycles', 'CalcNumSaturatedRings',
-                                'CalcNumAromaticCarbocycles', 'CalcNumRings', 'CalcNumHeavyAtoms', 'CalcNumRotatableBonds',
-                                'CalcNumAliphaticRings', 'CalcNumHeteroatoms', 'CalcNumAromaticRings', 'CalcNumAliphaticHeterocycles']:
-                    descNameList.append(name)
-                    try:
-                        descValList.append(attr(mol))
-                    except:
-                        descValList.append(0)   # assign 0 for non-SMILES, NaN, or None
+        for name, attr in _descriptor_list:
+            descNameList.append(name)
+            try:
+                descValList.append(attr(mol))
+            except:
+                descValList.append(0)   # assign 0 for non-SMILES, NaN, or None
 
         return np.array(descNameList), np.array(descValList)
 
