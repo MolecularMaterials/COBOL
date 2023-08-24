@@ -26,14 +26,13 @@ _descriptor_list.extend((name, getattr(Descriptors, name)) for name in dir(Descr
 _descriptor_list.extend((name, getattr(Crippen, name)) for name in dir(Crippen)
                         if (("MolLogP" in name or "MolMR" in name) and "_" not in name))
 
-# Remove ring-related descriptors
+# Remove duplicated descriptors
 _descriptor_list = sorted(
     (name, func) for name, func in _descriptor_list
     if name not in ['CalcNumAromaticHeterocycles', 'CalcNumSaturatedHeterocycles', 'CalcNumSaturatedRings',
                     'CalcNumAromaticCarbocycles', 'CalcNumRings', 'CalcNumHeavyAtoms', 'CalcNumRotatableBonds',
                     'CalcNumAliphaticRings', 'CalcNumHeteroatoms', 'CalcNumAromaticRings', 'CalcNumAliphaticHeterocycles']
 )
-
 
 class FingerprintGenerator:
     ''' Generate the fingerprint for a molecule, given the fingerprint type
@@ -124,9 +123,7 @@ def Smiles2Fingerprint(smilesList, fp_type='PhysChemFeats') -> pd.DataFrame:
     return dfFeatures
 
 if __name__ == '__main__':
-    #sml = 'O'
-    smlList = ['O','COC']
-    _, fp = [get_fingerprint(sml, 'PhysChemFeats') for sml in smlList]
-    #fp = Smiles2Fingerprint(smlList,'ECFP6')
-    print(fp[1])
-    print(len(fp))
+    smlList = ['[R]','COC','C','CO']
+    desc, fp = get_fingerprint(smlList[1], 'PhysChemFeats')
+    #fp = Smiles2Fingerprint(smlList,'PhysChemFeats')
+    print(desc, fp)
