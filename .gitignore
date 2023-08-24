@@ -1,3 +1,4 @@
+*.pyc
 # Ignore all files ending with .log
 *.log
 
